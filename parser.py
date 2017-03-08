@@ -1,6 +1,7 @@
 from display import *
 from matrix import *
 from draw import *
+import time
 
 """
 Goes through the file named filename and performs all of the actions listed in that file.
@@ -32,4 +33,47 @@ The file follows the following format:
 See the file script for an example of the file format
 """
 def parse_file( fname, points, transform, screen, color ):
+    f = open(fname, 'r')
+    c = f.read().splitlines()
+    for i in range(0, len(c)):
+        if c[i] == 'line':
+            p = c[i+1].split(' ')
+            p = map(int, p)
+            add_edge(points, p[0], p[1], p[2], p[3], p[4], p[5])
+        elif c[i] == 'ident':
+            ident(transform)
+        elif c[i] == 'scale':
+            p = c[i+1].split(' ')
+            p = map(int, p)
+            t = make_scale(p[0], p[1], p[2])
+            matrix_mult(t, transform)
+        elif c[i] == 'move':
+            p = c[i+1].split(' ')
+            p = map(int, p)
+            t = make_translate(p[0], p[1], p[2])
+            matrix_mult(t, transform)
+        elif c[i] == 'rotate':
+            p = c[i+1].split(' ')
+            p[1] = int(p[1])
+            if p[0] == 'x':
+                t = make_rotX(p[1])
+            elif p[0] == 'y':
+                t = make_rotY(p[1])
+            elif p[0] == 'z':
+                t = make_rotZ(p[1])
+            matrix_mult(t, transform)
+        elif c[i] == 'apply':
+            matrix_mult(transform, points)
+        elif c[i] == 'display':
+            clear_screen(screen)
+            draw_lines(points, screen, color)
+            display(screen)
+            time.sleep(3)
+        elif c[i] == 'save':
+            clear_screen(screen)
+            draw_lines(points, screen, color)
+            n = c[i+1]
+            save_extension(screen, n)
+        elif c[i] == 'quit':
+            break
     pass
